@@ -10,7 +10,7 @@ import { EventState } from "@goengine/core/src/supplement/Event";
 import { GridUtils } from "@goengine/core/src/util/Grid";
 import Interaction from "@goengine/web/src/control/Interaction";
 
-const UNIT_COUNT: number = 70 ** 2,
+const UNIT_COUNT: number = 30 ** 2,
     UNIT_WIDTH: number = 26 / 2,
     UNIT_HEIGHT: number = 37 / 2;
 /**
@@ -48,7 +48,7 @@ export default class BatchMap extends CTXMap {
         anchor: { x: UNIT_WIDTH / 2, y: UNIT_HEIGHT / 2 },
         source: {
             type: "img",
-            src: "test/bunny.png",
+            src: "/webs/canvas-example/static/bunny.png",
         },
     });
     /**

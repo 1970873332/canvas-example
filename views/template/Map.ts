@@ -35,7 +35,7 @@ export default class Map extends CTXMap {
                             source: {
                                 type: "img",
                                 mode: "cover",
-                                src: "test/1.jpg",
+                                src: "/webs/canvas-example/static/1.jpg",
                                 size: { height: 200 },
                             },
                         },
@@ -72,7 +72,7 @@ export default class Map extends CTXMap {
                 template: {
                     source: {
                         type: "img",
-                        src: "test/1.jpg",
+                        src: "/webs/canvas-example/static/1.jpg",
                         mode: "cover",
                         size: { height: 300 },
                     },

@@ -5,7 +5,10 @@ import Scroll from "@goengine/canvas/src/node/component/Scroll";
 import Snapshot from "@goengine/canvas/src/node/mutation/Snapshot";
 import Rect, { RectRule } from "@goengine/canvas/src/node/shape/Rect";
 import { CheckUtils } from "@goengine/canvas/src/util/Check";
-import { TransformConfig, TransformUtils } from "@goengine/canvas/src/util/Transform";
+import {
+    TransformConfig,
+    TransformUtils,
+} from "@goengine/canvas/src/util/Transform";
 import Matrix4 from "@goengine/core/src/object/math/matrix/Matrix4";
 import Vector2 from "@goengine/core/src/object/math/vector/Vector2";
 import Vector3 from "@goengine/core/src/object/math/vector/Vector3";

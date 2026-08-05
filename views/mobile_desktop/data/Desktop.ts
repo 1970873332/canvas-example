@@ -192,7 +192,7 @@ export default [
                                     {
                                         type: "image",
                                         size: [168, 168],
-                                        src: "test/img_gallery.png",
+                                        src: "/webs/canvas-example/static/img_gallery.png",
                                     },
                                     {
                                         type: "text",

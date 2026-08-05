@@ -4,7 +4,9 @@ import BaseCTXNode, { BaseCTXNodeAny } from "@goengine/canvas/src/node/Base";
 import Image from "@goengine/canvas/src/node/common/Image";
 import Text from "@goengine/canvas/src/node/common/Text";
 import Scroll from "@goengine/canvas/src/node/component/Scroll";
-import Entrust, { EntrustAny } from "@goengine/canvas/src/node/advanced/Entrust";
+import Entrust, {
+    EntrustAny,
+} from "@goengine/canvas/src/node/advanced/Entrust";
 import Group from "@goengine/canvas/src/node/wrap/Group";
 import Value from "@goengine/core/src/object/attribute/Value";
 import Vector2 from "@goengine/core/src/object/math/vector/Vector2";

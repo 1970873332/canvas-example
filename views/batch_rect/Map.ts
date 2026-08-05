@@ -10,7 +10,7 @@ import { EventState } from "@goengine/core/src/supplement/Event";
 import { GridUtils } from "@goengine/core/src/util/Grid";
 import Interaction from "@goengine/web/src/control/Interaction";
 
-const UNIT_COUNT: number = 60 ** 2,
+const UNIT_COUNT: number = 30 ** 2,
     UNIT_SIZE: number = 16;
 /**
  * 批处理地图

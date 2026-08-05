@@ -12,7 +12,7 @@ export default class TestMap extends CTXMap {
     private image = new Image({
         source: {
             type: "img",
-            src: "test/1.jpg",
+            src: "/webs/canvas-example/static/1.jpg",
             mode: "cover",
             size: { width: 300 },
         },
