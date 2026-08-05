@@ -1,0 +1,10 @@
+{
+    "name": "test",
+    "version": "1.0.0",
+    "description": "",
+    "license": "ISC",
+    "author": "",
+    "dependencies": {
+        "lil-gui": "^0.21.0"
+    }
+}
