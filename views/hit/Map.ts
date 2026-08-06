@@ -18,15 +18,15 @@ export default class HitMap extends CTXMap {
     /**
      * 交互
      */
-    private interaction = new Interaction(this.canvas);
+    private readonly interaction = new Interaction(this.canvas);
     /**
      * 命中模块
      */
-    private hitMod = new HitMod(this.interaction);
+    private readonly hitMod = new HitMod(this.interaction);
     /**
      * 矩形
      */
-    private rect = new Rect({
+    private readonly rect = new Rect({
         radii: 20,
         size: Vector2.fromScalar(100),
         scale: new Vector3(0.5, 0.5, 1),
@@ -39,13 +39,13 @@ export default class HitMap extends CTXMap {
     /**
      * 边框
      */
-    private border = new Rect({
+    private readonly border = new Rect({
         style: { lineWidth: 2, strokeStyle: "white" },
     });
     /**
      * 命中事件状态
      */
-    private hitEventState = new EventState(
+    private readonly hitEventState = new EventState(
         this.hitMod,
         "active",
         this.handleHit.bind(this),
@@ -55,7 +55,7 @@ export default class HitMap extends CTXMap {
      * 处理命中
      */
     private handleHit({
-        detail: { type, node, offset },
+        detail: { type, node },
     }: CustomEvent<HitModNode>): void {
         switch (type) {
             case "move":
@@ -91,19 +91,13 @@ export default class HitMap extends CTXMap {
     }
 
     public destroy(): void {
+        super.destroy();
+
         this.hitEventState.break();
 
         this.hitMod.destroy();
         this.interaction.destroy();
 
-        Object.assign(this, {
-            hitMod: void 0,
-            rect: void 0,
-            border: void 0,
-            interaction: void 0,
-            hitEventState: void 0,
-        });
-
-        super.destroy();
+        this.scene.clear(true);
     }
 }

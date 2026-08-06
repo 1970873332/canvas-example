@@ -1,12 +1,12 @@
 import CTXMap from "@goengine/canvas/src/map/CTX";
 import HitMod, { HitModNode } from "@goengine/canvas/src/mod/Hit";
+import Entrust, {
+    EntrustAny,
+} from "@goengine/canvas/src/node/advanced/Entrust";
 import BaseCTXNode, { BaseCTXNodeAny } from "@goengine/canvas/src/node/Base";
 import Image from "@goengine/canvas/src/node/common/Image";
 import Text from "@goengine/canvas/src/node/common/Text";
 import Scroll from "@goengine/canvas/src/node/component/Scroll";
-import Entrust, {
-    EntrustAny,
-} from "@goengine/canvas/src/node/advanced/Entrust";
 import Group from "@goengine/canvas/src/node/wrap/Group";
 import Value from "@goengine/core/src/object/attribute/Value";
 import Vector2 from "@goengine/core/src/object/math/vector/Vector2";
@@ -24,21 +24,21 @@ export default class MobileDesktopMap extends CTXMap {
     /**
      * 交互
      */
-    private interaction = new Interaction(this.canvas);
+    private readonly interaction = new Interaction(this.canvas);
     /**
      * 命中
      */
-    private hitMod = new HitMod(this.interaction);
+    private readonly hitMod = new HitMod(this.interaction);
     /**
      * 悬浮节点
      */
-    private hoverNode = new Value<BaseCTXNode<any, any> | undefined>(
+    private readonly hoverNode = new Value<BaseCTXNode<any, any> | undefined>(
         void 0,
     ).bindCallback(this.change.bind(this));
     /**
      * 分页数据
      */
-    private paginData = {
+    private readonly paginData = {
         /**
          * 分页节点
          */
@@ -53,11 +53,11 @@ export default class MobileDesktopMap extends CTXMap {
     /**
      * 命中事件状态
      */
-    private hitEventState = new EventState(
+    private readonly hitEventState = new EventState(
         this.hitMod,
         "active",
         this.handleHit.bind(this),
-    );
+    ).wake();
 
     /**
      * 分析
@@ -228,17 +228,8 @@ export default class MobileDesktopMap extends CTXMap {
         }
     }
 
-    protected addEvents(): void {
-        super.addEvents();
-
-        this.hitEventState.wake();
-    }
-
     public destroy(): void {
-        ArrayUtils.traverse(
-            this.scene.children,
-            (item) => item instanceof Image && item.clearRely(),
-        );
+        super.destroy();
 
         this.hitEventState.break();
 
@@ -250,14 +241,11 @@ export default class MobileDesktopMap extends CTXMap {
         this.hitMod.destroy();
         this.interaction.destroy();
 
-        Object.assign(this, {
-            hitMod: void 0,
-            hoverNode: void 0,
-            paginData: void 0,
-            interaction: void 0,
-            hitEventState: void 0,
-        });
+        this.scene.clear(true);
 
-        super.destroy();
+        ArrayUtils.traverse(
+            this.scene.children,
+            (node) => node instanceof Image && node.clearRely(),
+        );
     }
 }

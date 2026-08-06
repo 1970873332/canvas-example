@@ -32,16 +32,16 @@ export default class NestedBatchMap extends CTXMap {
     /**
      * 交互
      */
-    private interaction = new Interaction(this.canvas);
+    private readonly interaction = new Interaction(this.canvas);
     /**
      * 命中模块
      */
-    private hitMod = new HitMod(this.interaction);
+    private readonly hitMod = new HitMod(this.interaction);
 
     /**
      * 命中事件状态
      */
-    private hitEventState = new EventState(
+    private readonly hitEventState = new EventState(
         this.hitMod,
         "active",
         this.handleHit.bind(this),
@@ -50,7 +50,7 @@ export default class NestedBatchMap extends CTXMap {
     /**
      * 滚动组件
      */
-    private scroll = new Scroll(new HitMod(this.interaction), {
+    private readonly scroll = new Scroll(new HitMod(this.interaction), {
         slide: {
             mode: "inertia",
             constraint: "bound",
@@ -279,40 +279,32 @@ export default class NestedBatchMap extends CTXMap {
             height,
             halfWidth,
             halfHeight,
-            scroll: { size, position },
+            batchSceneSnapshot,
+            scroll: { size, position, group },
         } = this;
 
         // 设置滚动尺寸
         size.set(width, height);
+        // 组适配
+        group.adapt(batchSceneSnapshot);
         // 剧中滚动位置
         position.set(halfWidth - size.width / 2, halfHeight - size.height / 2);
     }
 
     public destroy(): void {
+        super.destroy();
+
         this.hitEventState.break();
 
         this.hitMod.destroy();
         this.interaction.destroy();
 
-        this.scroll.clearRely();
-        this.batchTemplate.clearRely();
-        this.batchGroup.clearRely();
-        this.batchScene.clearRely();
+        this.scroll.destroy(true);
 
-        Object.assign(this, {
-            hitMod: void 0,
-            scroll: void 0,
-            unitRect: void 0,
-            batchGroup: void 0,
-            batchScene: void 0,
-            interaction: void 0,
-            hitEventState: void 0,
-            batchTemplate: void 0,
-            batchGroupSnapshot: void 0,
-            batchSceneSnapshot: void 0,
-            batchTemplateSnapshot: void 0,
-        });
+        this.batchTemplateSnapshot.destroy(true);
+        this.batchGroupSnapshot.destroy(true);
+        this.batchSceneSnapshot.destroy(true);
 
-        super.destroy();
+        this.scene.clear(true);
     }
 }

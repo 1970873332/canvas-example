@@ -23,15 +23,15 @@ export default class BatchMap extends CTXMap {
     /**
      * 交互
      */
-    private interaction = new Interaction(this.canvas);
+    private readonly interaction = new Interaction(this.canvas);
     /**
      * 命中模块
      */
-    private hitMod = new HitMod(this.interaction);
+    private readonly hitMod = new HitMod(this.interaction);
     /**
      * 滚动组件
      */
-    private scroll = new Scroll(new HitMod(this.interaction), {
+    private readonly scroll = new Scroll(new HitMod(this.interaction), {
         slide: {
             mode: "inertia",
             constraint: "bound",
@@ -56,7 +56,7 @@ export default class BatchMap extends CTXMap {
     /**
      * 命中事件状态
      */
-    private hitEventState = new EventState(
+    private readonly hitEventState = new EventState(
         this.hitMod,
         "active",
         this.handleHit.bind(this),
@@ -168,37 +168,32 @@ export default class BatchMap extends CTXMap {
         super.resize();
 
         const {
+            batch,
             width,
             height,
             halfWidth,
             halfHeight,
-            scroll: { size, position },
+            scroll: { size, position, group },
         } = this;
 
         // 设置滚动尺寸
         size.set(width, height);
+        // 组适配
+        group.adapt(batch);
         // 剧中滚动位置
         position.set(halfWidth - size.width / 2, halfHeight - size.height / 2);
     }
 
     public destroy(): void {
-        this.batch.clearRely();
-        this.scroll.clearRely();
+        super.destroy();
 
         this.hitEventState.break();
 
         this.hitMod.destroy();
         this.interaction.destroy();
 
-        Object.assign(this, {
-            batch: void 0,
-            scroll: void 0,
-            hitMod: void 0,
-            unitRect: void 0,
-            interaction: void 0,
-            hitEventState: void 0,
-        });
+        this.scroll.destroy(true);
 
-        super.destroy();
+        this.scene.clear(true);
     }
 }

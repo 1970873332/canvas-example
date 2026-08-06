@@ -86,16 +86,13 @@ export default class Map extends CTXMap {
     }
 
     public destroy(): void {
+        super.destroy();
+
+        this.scene.clear(true);
+
         ArrayUtils.traverse(
             this.scene.children,
-            (item) => item instanceof Image && item.clearRely(),
+            (node) => node instanceof Image && node.clearRely(),
         );
-
-        Object.assign(this, {
-            template: void 0,
-            template1: void 0,
-        });
-
-        super.destroy();
     }
 }

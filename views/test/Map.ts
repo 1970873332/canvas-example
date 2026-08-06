@@ -9,7 +9,7 @@ export default class TestMap extends CTXMap {
         super(canvas);
     }
 
-    private image = new Image({
+    private readonly image = new Image({
         source: {
             type: "img",
             src: "/webs/canvas-example/static/1.jpg",
@@ -24,5 +24,11 @@ export default class TestMap extends CTXMap {
 
     protected init(): void {
         this.scene.add(this.image);
+    }
+
+    public destroy(): void {
+        super.destroy();
+
+        this.image.clearRely();
     }
 }

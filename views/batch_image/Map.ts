@@ -1,12 +1,10 @@
 import CTXMap from "@goengine/canvas/src/map/CTX";
-import HitMod, { HitModNode } from "@goengine/canvas/src/mod/Hit";
+import HitMod from "@goengine/canvas/src/mod/Hit";
+import Batch from "@goengine/canvas/src/node/advanced/Batch";
 import Image, { ImageRule } from "@goengine/canvas/src/node/common/Image";
 import Scroll from "@goengine/canvas/src/node/component/Scroll";
-import Batch from "@goengine/canvas/src/node/advanced/Batch";
-import { CheckUtils } from "@goengine/canvas/src/util/Check";
-import { TransformUtils } from "@goengine/canvas/src/util/Transform";
 import Vector2 from "@goengine/core/src/object/math/vector/Vector2";
-import { EventState } from "@goengine/core/src/supplement/Event";
+import { ArrayUtils } from "@goengine/core/src/util/Array";
 import { GridUtils } from "@goengine/core/src/util/Grid";
 import Interaction from "@goengine/web/src/control/Interaction";
 
@@ -24,15 +22,15 @@ export default class BatchMap extends CTXMap {
     /**
      * 交互
      */
-    private interaction = new Interaction(this.canvas);
+    private readonly interaction = new Interaction(this.canvas);
     /**
      * 命中模块
      */
-    private hitMod = new HitMod(this.interaction);
+    private readonly hitMod = new HitMod(this.interaction);
     /**
      * 滚动组件
      */
-    private scroll = new Scroll(new HitMod(this.interaction), {
+    private readonly scroll = new Scroll(new HitMod(this.interaction), {
         slide: {
             mode: "inertia",
             constraint: "bound",
@@ -58,14 +56,6 @@ export default class BatchMap extends CTXMap {
         sample: this.unitImage,
         offset: this.unitImage.anchor.clone(),
     });
-    /**
-     * 命中事件状态
-     */
-    private hitEventState = new EventState(
-        this.hitMod,
-        "active",
-        this.handleHit.bind(this),
-    );
 
     /**
      * 初始化规则
@@ -91,39 +81,6 @@ export default class BatchMap extends CTXMap {
         // 设置尺寸
         size.set(width, height);
     }
-    /**
-     * 更新批处理
-     * @param param0
-     */
-    private updateBatch(point: Vector2): void {
-        const { rules, sample, worldMatrix } = this.batch,
-            { path } = sample;
-
-        for (const rule of rules.toReversed()) {
-            const config = TransformUtils.generateByRule(
-                    rule,
-                    sample,
-                    worldMatrix,
-                ),
-                hit = CheckUtils.checkHitPath2D(point, path, config);
-
-            if (!hit) continue;
-
-            break;
-        }
-    }
-    /**
-     * 处理命中
-     */
-    private handleHit({
-        detail: { type, node, offset },
-    }: CustomEvent<HitModNode>): void {
-        switch (type) {
-            case "move":
-                node === this.batch && this.updateBatch(offset);
-                break;
-        }
-    }
 
     protected init(): void {
         const { scene, batch, scroll } = this,
@@ -143,56 +100,39 @@ export default class BatchMap extends CTXMap {
         this.unitImage.rotation.z += 0.01;
     }
 
-    protected addEvents(): void {
-        super.addEvents();
-
-        const {
-            batch,
-            hitEventState,
-            hitMod: { moveNodes },
-        } = this;
-
-        // 添加移动节点监听
-        moveNodes.add(batch);
-        // 激活事件监听
-        hitEventState.wake();
-    }
-
     public resize(): void {
         super.resize();
 
         const {
+            batch,
             width,
             height,
             halfWidth,
             halfHeight,
-            scroll: { size, position },
+            scroll: { size, position, group },
         } = this;
 
         // 设置滚动尺寸
         size.set(width, height);
+        // 组适配
+        group.adapt(batch);
         // 剧中滚动位置
         position.set(halfWidth - size.width / 2, halfHeight - size.height / 2);
     }
 
     public destroy(): void {
-        this.batch.clearRely();
-        this.scroll.clearRely();
-        this.unitImage.clearRely();
-
-        this.hitEventState.break();
+        super.destroy();
 
         this.hitMod.destroy();
         this.interaction.destroy();
 
-        Object.assign(this, {
-            batch: void 0,
-            hitMod: void 0,
-            unitImage: void 0,
-            interaction: void 0,
-            hitEventState: void 0,
-        });
+        this.scroll.destroy(true);
 
-        super.destroy();
+        this.scene.clear(true);
+
+        ArrayUtils.traverse(
+            this.scene.children,
+            (node) => node instanceof Image && node.clearRely(),
+        );
     }
 }
