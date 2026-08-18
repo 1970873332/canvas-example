@@ -5,30 +5,30 @@ import Image from "@goengine/canvas/src/node/common/Image";
  * 测试地图
  */
 export default class TestMap extends CTXMap {
-    constructor(canvas: HTMLCanvasElement) {
-        super(canvas);
-    }
+  constructor(canvas: HTMLCanvasElement) {
+    super(canvas);
+  }
 
-    private readonly image = new Image({
-        source: {
-            type: "img",
-            src: "/webs/canvas-example/static/1.jpg",
-            mode: "cover",
-            size: { width: 300 },
-        },
-        style: {
-            filter: "grayscale(1)",
-        },
-        offscreen: true,
-    });
+  private readonly image = new Image({
+    source: {
+      type: "img",
+      src: "1.jpg",
+      mode: "cover",
+      size: { width: 300 },
+    },
+    style: {
+      filter: "grayscale(1)",
+    },
+    offscreen: true,
+  });
 
-    protected init(): void {
-        this.scene.add(this.image);
-    }
+  protected init(): void {
+    this.scene.add(this.image);
+  }
 
-    public destroy(): void {
-        super.destroy();
+  public destroy(): void {
+    super.destroy();
 
-        this.image.clearRely();
-    }
+    this.image.clearRely();
+  }
 }

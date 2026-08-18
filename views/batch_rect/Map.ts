@@ -11,189 +11,181 @@ import { GridUtils } from "@goengine/core/src/util/Grid";
 import Interaction from "@goengine/web/src/control/Interaction";
 
 const UNIT_COUNT: number = 30 ** 2,
-    UNIT_SIZE: number = 16;
+  UNIT_SIZE: number = 16;
 /**
  * 批处理地图
  */
 export default class BatchMap extends CTXMap {
-    constructor(canvas: HTMLCanvasElement) {
-        super(canvas);
+  constructor(canvas: HTMLCanvasElement) {
+    super(canvas);
+  }
+
+  /**
+   * 交互
+   */
+  private readonly interaction = new Interaction(this.canvas);
+  /**
+   * 命中模块
+   */
+  private readonly hitMod = new HitMod(this.interaction);
+  /**
+   * 滚动组件
+   */
+  private readonly scroll = new Scroll(new HitMod(this.interaction), {
+    slide: {
+      mode: "inertia",
+      constraint: "bound",
+      direction: Vector2.one(),
+      damping: Vector2.fromScalar(50),
+    },
+  });
+  /**
+   * 单元矩形
+   */
+  private readonly unitRect = new Rect({
+    size: Vector2.fromScalar(UNIT_SIZE),
+    anchor: Vector2.fromScalar(UNIT_SIZE / 2),
+  });
+  /**
+   * 批处理
+   */
+  private readonly batch = new Batch<Rect, RectRule>({
+    sample: this.unitRect,
+    offset: this.unitRect.anchor.clone(),
+  });
+  /**
+   * 命中事件状态
+   */
+  private readonly hitEventState = new EventState(
+    this.hitMod,
+    "active",
+    this.handleHit.bind(this),
+  );
+
+  /**
+   * 初始化规则
+   */
+  private initRules(): void {
+    const { batch } = this,
+      { size, rules, sample } = batch,
+      { width, height } =
+        // 构建规则
+        GridUtils.buildSqrt(UNIT_COUNT, sample.size, (index, position) => {
+          const rule: (typeof rules)[number] = {
+            position,
+            style: {
+              fillStyle: `hsl(${Math.random() * 360}, 100%, 50%)`,
+            },
+          };
+
+          // 设置规则
+          rules[index] = rule;
+        });
+
+    // 设置尺寸
+    size.set(width, height);
+  }
+  /**
+   * 更新批处理
+   * @param param0
+   */
+  private updateBatch(point: Vector2): void {
+    const { rules, sample, offset, worldMatrix } = this.batch,
+      { path } = sample;
+
+    for (const rule of rules.toReversed()) {
+      const config = TransformUtils.generateByRule(rule, sample, worldMatrix),
+        hit = CheckUtils.checkHitPath2D(
+          point,
+          path,
+          TransformUtils.composeOffset(config, offset),
+        );
+
+      if (!hit) continue;
+
+      rule.style = {
+        fillStyle: "white",
+      };
+
+      break;
     }
-
-    /**
-     * 交互
-     */
-    private readonly interaction = new Interaction(this.canvas);
-    /**
-     * 命中模块
-     */
-    private readonly hitMod = new HitMod(this.interaction);
-    /**
-     * 滚动组件
-     */
-    private readonly scroll = new Scroll(new HitMod(this.interaction), {
-        slide: {
-            mode: "inertia",
-            constraint: "bound",
-            direction: Vector2.one(),
-            damping: Vector2.fromScalar(50),
-        },
-    });
-    /**
-     * 单元矩形
-     */
-    private readonly unitRect = new Rect({
-        size: Vector2.fromScalar(UNIT_SIZE),
-        anchor: Vector2.fromScalar(UNIT_SIZE / 2),
-    });
-    /**
-     * 批处理
-     */
-    private readonly batch = new Batch<Rect, RectRule>({
-        sample: this.unitRect,
-        offset: this.unitRect.anchor.clone(),
-    });
-    /**
-     * 命中事件状态
-     */
-    private readonly hitEventState = new EventState(
-        this.hitMod,
-        "active",
-        this.handleHit.bind(this),
-    );
-
-    /**
-     * 初始化规则
-     */
-    private initRules(): void {
-        const { batch } = this,
-            { size, rules, sample } = batch,
-            { width, height } =
-                // 构建规则
-                GridUtils.buildSqrt(
-                    UNIT_COUNT,
-                    sample.size,
-                    (index, position) => {
-                        const rule: (typeof rules)[number] = {
-                            position,
-                            style: {
-                                fillStyle: `hsl(${Math.random() * 360}, 100%, 50%)`,
-                            },
-                        };
-
-                        // 设置规则
-                        rules[index] = rule;
-                    },
-                );
-
-        // 设置尺寸
-        size.set(width, height);
+  }
+  /**
+   * 处理命中
+   */
+  private handleHit({
+    detail: { type, node, offset },
+  }: CustomEvent<HitModNode>): void {
+    switch (type) {
+      case "move":
+        node === this.batch && this.updateBatch(offset);
+        break;
     }
-    /**
-     * 更新批处理
-     * @param param0
-     */
-    private updateBatch(point: Vector2): void {
-        const { rules, sample, offset, worldMatrix } = this.batch,
-            { path } = sample;
+  }
 
-        for (const rule of rules.toReversed()) {
-            const config = TransformUtils.generateByRule(
-                    rule,
-                    sample,
-                    worldMatrix,
-                ),
-                hit = CheckUtils.checkHitPath2D(
-                    point,
-                    path,
-                    TransformUtils.composeOffset(config, offset),
-                );
+  protected init(): void {
+    const { scene, batch, scroll } = this,
+      { group } = scroll;
 
-            if (!hit) continue;
+    // 初始化规则
+    this.initRules();
+    // 组适配
+    group.adapt(batch);
+    // 添加滚动组件
+    scene.add(scroll);
+  }
 
-            rule.style = {
-                fillStyle: "white",
-            };
+  protected update(time: DOMHighResTimeStamp): void {
+    super.update(time);
 
-            break;
-        }
-    }
-    /**
-     * 处理命中
-     */
-    private handleHit({
-        detail: { type, node, offset },
-    }: CustomEvent<HitModNode>): void {
-        switch (type) {
-            case "move":
-                node === this.batch && this.updateBatch(offset);
-                break;
-        }
-    }
+    this.unitRect.rotation.z += 0.01;
+  }
 
-    protected init(): void {
-        const { scene, batch, scroll } = this,
-            { group } = scroll;
+  protected addEvents(): void {
+    super.addEvents();
 
-        // 初始化规则
-        this.initRules();
-        // 组适配
-        group.adapt(batch);
-        // 添加滚动组件
-        scene.add(scroll);
-    }
+    const {
+      batch,
+      hitEventState,
+      hitMod: { moveNodes },
+    } = this;
 
-    protected update(time: DOMHighResTimeStamp): void {
-        super.update(time);
+    // 添加移动节点监听
+    moveNodes.add(batch);
+    // 激活事件监听
+    hitEventState.wake();
+  }
 
-        this.unitRect.rotation.z += 0.01;
-    }
+  public resize(): void {
+    super.resize();
 
-    protected addEvents(): void {
-        super.addEvents();
+    const {
+      batch,
+      width,
+      height,
+      halfWidth,
+      halfHeight,
+      scroll: { size, position, group },
+    } = this;
 
-        const {
-            batch,
-            hitEventState,
-            hitMod: { moveNodes },
-        } = this;
+    // 设置滚动尺寸
+    size.set(width, height);
+    // 组适配
+    group.adapt(batch);
+    // 剧中滚动位置
+    position.set(halfWidth - size.width / 2, halfHeight - size.height / 2);
+  }
 
-        // 添加移动节点监听
-        moveNodes.add(batch);
-        // 激活事件监听
-        hitEventState.wake();
-    }
+  public destroy(): void {
+    super.destroy();
 
-    public resize(): void {
-        super.resize();
+    this.hitEventState.break();
 
-        const {
-            batch,
-            width,
-            height,
-            halfWidth,
-            halfHeight,
-            scroll: { size, position, group },
-        } = this;
+    this.hitMod.destroy();
+    this.interaction.destroy();
 
-        // 设置滚动尺寸
-        size.set(width, height);
-        // 组适配
-        group.adapt(batch);
-        // 剧中滚动位置
-        position.set(halfWidth - size.width / 2, halfHeight - size.height / 2);
-    }
+    this.scroll.destroy(true);
 
-    public destroy(): void {
-        super.destroy();
-
-        this.hitEventState.break();
-
-        this.hitMod.destroy();
-        this.interaction.destroy();
-
-        this.scroll.destroy(true);
-
-        this.scene.clear(true);
-    }
+    this.scene.clear(true);
+  }
 }

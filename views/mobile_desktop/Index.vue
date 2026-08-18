@@ -1,8 +1,8 @@
 <template>
-    <canvas
-        ref="canvasRef"
-        style="margin: auto; width: 390px; height: 844px"
-    ></canvas>
+  <canvas
+    ref="canvasRef"
+    style="margin: auto; width: 390px; height: 844px"
+  ></canvas>
 </template>
 
 <script lang="ts" setup>
@@ -14,15 +14,15 @@ let map: Map | undefined;
 const canvasRef = ref<HTMLCanvasElement | null>(null);
 
 onMounted(() => {
-    const canvas = canvasRef.value;
-    if (canvas) {
-        map = new Map(canvas);
+  const canvas = canvasRef.value;
+  if (canvas) {
+    map = new Map(canvas);
 
-        map.analysis(Desktop);
-    }
+    map.analysis(Desktop);
+  }
 });
 
 onUnmounted(() => {
-    map?.destroy();
+  map?.destroy();
 });
 </script>

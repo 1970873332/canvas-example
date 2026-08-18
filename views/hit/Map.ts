@@ -11,93 +11,91 @@ import Interaction from "@goengine/web/src/control/Interaction";
  * 命中地图
  */
 export default class HitMap extends CTXMap {
-    constructor(canvas: HTMLCanvasElement) {
-        super(canvas);
+  constructor(canvas: HTMLCanvasElement) {
+    super(canvas);
+  }
+
+  /**
+   * 交互
+   */
+  private readonly interaction = new Interaction(this.canvas);
+  /**
+   * 命中模块
+   */
+  private readonly hitMod = new HitMod(this.interaction);
+  /**
+   * 矩形
+   */
+  private readonly rect = new Rect({
+    radii: 20,
+    size: Vector2.fromScalar(100),
+    scale: new Vector3(0.5, 0.5, 1),
+    rotation: Euler.fromZ(Math.PI / 4),
+    position: new Vector3(100, 100),
+    style: {
+      fillStyle: "red",
+    },
+  });
+  /**
+   * 边框
+   */
+  private readonly border = new Rect({
+    style: { lineWidth: 2, strokeStyle: "white" },
+  });
+  /**
+   * 命中事件状态
+   */
+  private readonly hitEventState = new EventState(
+    this.hitMod,
+    "active",
+    this.handleHit.bind(this),
+  );
+
+  /**
+   * 处理命中
+   */
+  private handleHit({ detail: { type, node } }: CustomEvent<HitModNode>): void {
+    switch (type) {
+      case "move":
+        if (node) {
+          this.border.setConfig({
+            visible: true,
+            size: node.size,
+            position: node.position,
+            rotation: node.rotation,
+            scale: node.scale,
+          });
+        } else this.border.visible = false;
+        break;
     }
+  }
 
-    /**
-     * 交互
-     */
-    private readonly interaction = new Interaction(this.canvas);
-    /**
-     * 命中模块
-     */
-    private readonly hitMod = new HitMod(this.interaction);
-    /**
-     * 矩形
-     */
-    private readonly rect = new Rect({
-        radii: 20,
-        size: Vector2.fromScalar(100),
-        scale: new Vector3(0.5, 0.5, 1),
-        rotation: Euler.fromZ(Math.PI / 4),
-        position: new Vector3(100, 100),
-        style: {
-            fillStyle: "red",
-        },
-    });
-    /**
-     * 边框
-     */
-    private readonly border = new Rect({
-        style: { lineWidth: 2, strokeStyle: "white" },
-    });
-    /**
-     * 命中事件状态
-     */
-    private readonly hitEventState = new EventState(
-        this.hitMod,
-        "active",
-        this.handleHit.bind(this),
-    );
+  protected addEvents(): void {
+    super.addEvents();
 
-    /**
-     * 处理命中
-     */
-    private handleHit({
-        detail: { type, node },
-    }: CustomEvent<HitModNode>): void {
-        switch (type) {
-            case "move":
-                if (node) {
-                    this.border.setConfig({
-                        visible: true,
-                        size: node.size,
-                        position: node.position,
-                        rotation: node.rotation,
-                        scale: node.scale,
-                    });
-                } else this.border.visible = false;
-                break;
-        }
-    }
+    const {
+      hitEventState,
+      hitMod: { moveNodes },
+    } = this;
 
-    protected addEvents(): void {
-        super.addEvents();
+    // 添加移动节点监听
+    moveNodes.add(this.rect);
+    // 激活命中事件状态
+    hitEventState.wake();
+  }
 
-        const {
-            hitEventState,
-            hitMod: { moveNodes },
-        } = this;
+  protected init(): void {
+    this.scene.add(this.rect, this.border);
+  }
 
-        // 添加移动节点监听
-        moveNodes.add(this.rect);
-        // 激活命中事件状态
-        hitEventState.wake();
-    }
+  public destroy(): void {
+    super.destroy();
 
-    protected init(): void {
-        this.scene.add(this.rect, this.border);
-    }
+    this.hitEventState.break();
 
-    public destroy(): void {
-        super.destroy();
+    this.hitMod.destroy();
+    this.interaction.destroy();
 
-        this.hitEventState.break();
-
-        this.hitMod.destroy();
-        this.interaction.destroy();
-
-        this.scene.clear(true);
-    }
+    this.scene.clear(true);
+  }
 }

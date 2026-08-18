@@ -1,5 +1,5 @@
 <template>
-    <canvas ref="canvasRef" style="width: 100%; height: 100%"></canvas>
+  <canvas ref="canvasRef" style="width: 100%; height: 100%"></canvas>
 </template>
 
 <script lang="ts" setup>
@@ -10,13 +10,13 @@ let map: Map | undefined;
 const canvasRef = ref<HTMLCanvasElement | null>(null);
 
 onMounted(() => {
-    const canvas = canvasRef.value;
-    if (canvas) {
-        map = new Map(canvas);
-    }
+  const canvas = canvasRef.value;
+  if (canvas) {
+    map = new Map(canvas);
+  }
 });
 
 onUnmounted(() => {
-    map?.destroy();
+  map?.destroy();
 });
 </script>
