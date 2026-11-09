@@ -5,6 +5,8 @@
   "license": "ISC",
   "author": "",
   "dependencies": {
-    "lil-gui": "^0.21.0"
+    "lil-gui": "^0.21.0",
+    "vue": "^3.5.13",
+    "vue-router": "^4.4.5"
   }
 }

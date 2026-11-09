@@ -1,0 +1,40 @@
+{
+    "compilerOptions": {
+        "target": "ESNext",
+        "module": "ESNext",
+        "moduleResolution": "bundler",
+        "strict": true,
+        "experimentalDecorators": true,
+        "emitDecoratorMetadata": true,
+        "noEmit": true,
+        "allowSyntheticDefaultImports": true,
+        "esModuleInterop": true,
+        "skipLibCheck": true,
+        "forceConsistentCasingInFileNames": true,
+        "resolveJsonModule": true,
+        "jsx": "preserve",
+        "typeRoots": [
+            "E:/GitHub/goengine-cli/node_modules/@types"
+        ],
+        "paths": {
+            "@/*": [
+                "./*"
+            ],
+            "@goengine/*": [
+                "E:/GitHub/goengine-cli/package/goengine-*"
+            ]
+        }
+    },
+    "include": [
+        "**/*.ts",
+        "**/*.tsx",
+        "**/*.vue",
+        "**/*.json",
+        "E:/GitHub/goengine-cli/lib/types/**/*.d.ts"
+    ],
+    "exclude": [
+        "node_modules",
+        "dist",
+        "build"
+    ]
+}
